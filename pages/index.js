@@ -1,28 +1,6 @@
-import MeetupList from '@/components/meetups/MeetupList';
+import { MongoClient } from 'mongodb';
 
-const DUMMY_MEETUPS = [
-  {
-    id: 'm1',
-    title: 'A First Meetup',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/2560px-Stadtbild_M%C3%BCnchen.jpg',
-    address: 'Some address 5, 12345 Some City',
-    description: 'This is a first meetup!'
-  },
-  {
-    id: 'm2',
-    title: 'A Second Meetup',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/2560px-Stadtbild_M%C3%BCnchen.jpg',
-    address: 'Some address 10, 12345 Some City',
-    description: 'This is a second meetup!'
-  },
-  {
-    id: 'm3',
-    title: 'A Third Meetup',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/2560px-Stadtbild_M%C3%BCnchen.jpg',
-    address: 'Some address 15, 12345 Some City',
-    description: 'This is a third meetup!'
-  }
-]
+import MeetupList from '@/components/meetups/MeetupList';
 
 const HomePage = (props) => {
   return (
@@ -31,10 +9,22 @@ const HomePage = (props) => {
 }
 
 export async function getStaticProps() {
+  const client = await MongoClient.connect(process.env.REACT_APP_MONGO_DB_STRING);
+  const db = client.db();
+
+  const meetupsCollection = db.collection('meetups');
+
+  const meetups = await meetupsCollection.find().toArray();
+  client.close();
   // The code here is executed during the build process and not during the runtime on the server and not on the client side!!! Here you can connect to a DB, access file on the server, etc. and returns an object, that has a props property that contains the data that will be passed to the component.
   return {
     props: {
-      meetups: DUMMY_MEETUPS
+      meetups: meetups.map(meetup => ({
+        title: meetup.title,
+        address: meetup.address,
+        image: meetup.image,
+        id: meetup._id.toString()
+      }))
     },
     revalidate: 10 // To re-generate every 10 seconds on the seconds if there are requests.
   }
