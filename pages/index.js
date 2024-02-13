@@ -24,10 +24,33 @@ const DUMMY_MEETUPS = [
   }
 ]
 
-const HomePage = () => {
+const HomePage = (props) => {
   return (
-    <MeetupList meetups={DUMMY_MEETUPS} />
+    <MeetupList meetups={props.meetups} />
   )
 }
+
+export async function getStaticProps() {
+  // The code here is executed during the build process and not during the runtime on the server and not on the client side!!! Here you can connect to a DB, access file on the server, etc. and returns an object, that has a props property that contains the data that will be passed to the component.
+  return {
+    props: {
+      meetups: DUMMY_MEETUPS
+    },
+    revalidate: 10 // To re-generate every 10 seconds on the seconds if there are requests.
+  }
+}
+
+// export async function getServerSideProps(context) {
+//   const req = context.req;
+//   const res = context.res;
+
+//   // fetch data from an API and run code on the server, not during build time, and not on the client side, only on the server side.
+//   // There is no need to revalidate, because it runs for every request.
+//   return {
+//     props: {
+//       meetups: DUMMY_MEETUPS
+//     }
+//   };
+// }
 
 export default HomePage;
