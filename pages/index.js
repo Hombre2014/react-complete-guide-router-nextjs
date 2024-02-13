@@ -34,7 +34,7 @@ export async function getStaticProps() {
         id: meetup._id.toString()
       }))
     },
-    revalidate: 10 // To re-generate every 10 seconds on the seconds if there are requests.
+    revalidate: 1 // To re-generate every 10 seconds on the seconds if there are requests.
   }
 }
 
